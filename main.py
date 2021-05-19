@@ -43,18 +43,18 @@ async def on_message(message):
     if message.content.lower() == 'cringecraft' or message.content.lower() == 'shutdown':
         response = random.choice(shutdown_messages)
         await message.channel.send(response)
-        response2 = start_stop_ec2.main('shutdown')
-        await message.channel.send(response2)  # TODO: format this json into something useful
+        response2 = start_stop_ec2.main('shutdown')  # TODO: format this json into something useful
+        # await message.channel.send(response2)  # this plain text prints the instance id among other things
 
     if message.content.lower() == 'epiccraft' or message.content.lower() == 'startup':
         response = random.choice(startup_messages)
         await message.channel.send(response)
         response2 = start_stop_ec2.main('startup')  # TODO: format this json into something useful
-        commands = ['. /home/ubuntu/minecraftStarter.sh']
+        commands = ['sh /home/ubuntu/minecraftStarter.sh']
         # need to figure out a way to make sure server is up before doing this, for now, sleep(60)
         time.sleep(60)
         start_stop_ec2.bash_script_executor(commands)
-        await message.channel.send(response2)
+        # await message.channel.send(response2) # this plain text prints instance id among other things
         await message.channel.send('grabbing the IP...')
         public_ip = start_stop_ec2.fetch_public_ip()
         await message.channel.send('Use this IP to login to the server: ' + str(public_ip) + ':25565')
@@ -68,7 +68,7 @@ async def on_message(message):
         response = 'restarting Minecraft Server'
         print('bouncing server')
         await message.channel.send(response)
-        commands = ['. /home/ubuntu/minecraftStarter.sh']
+        commands = ['sh /home/ubuntu/minecraftStarter.sh']
         start_stop_ec2.bash_script_executor(commands)
 
     if message.content.lower() == 'status':
