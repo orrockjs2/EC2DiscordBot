@@ -13,12 +13,11 @@ class Mem:
     instance_id = ""
 
 
-def read_credentials(arg):
+def read_credentials():
     """
     Cred file goes in the home directory of bot user
     :return: The EC2 instance id.
     """
-    print(arg)
     home_dir = os.path.expanduser('~')
     credentials_file_path = os.path.join(home_dir, "instance_id.txt")
     #Local Debug line
@@ -85,6 +84,7 @@ def stop_ec2():
         ec2.stop_instances(InstanceIds=[Mem.instance_id], DryRun=True)
     except ClientError as e:
         if 'DryRunOperation' not in str(e):
+            return str(e)
             raise
 
     # Dry run succeeded, call stop_instances without dryrun
@@ -98,6 +98,8 @@ def stop_ec2():
 
 
 def fetch_public_ip():
+    credentials = read_credentials()
+    Mem.instance_id = credentials[0]
     """
     Fetch the public IP that has been assigned to the EC2 instance.
     :return: Print the public IP to the console.
@@ -106,10 +108,9 @@ def fetch_public_ip():
     print()
     print("Waiting for public IPv4 address...")
     print()
-    time.sleep(16)
+    time.sleep(5)  # fix this
 
     reservations = ec2_client.describe_instances(InstanceIds=[Mem.instance_id]).get("Reservations")
-
     for reservation in reservations:
         for instance in reservation['Instances']:
             print(instance.get("PublicIpAddress"))
@@ -125,17 +126,20 @@ def bash_script_executor(commands):
     :param commands: a list of strings, each one a command to execute on the instances
     :return: the response from the send_command function (check the boto3 docs for ssm client.send_command() )
     """
-
-    resp = ec2.send_command(
+    credentials = read_credentials()
+    Mem.instance_id = credentials[0]
+    ids = [Mem.instance_id]
+    ssm_client = boto3.client('ssm', region_name="us-east-2")
+    resp = ssm_client.send_command(
         DocumentName="AWS-RunShellScript",
         Parameters={'commands': commands},
-        InstanceIds=Mem.instance_id,
+        InstanceIds=ids
     )
     return resp
 
 
 def main(argv):
-    credentials = read_credentials(argv)
+    credentials = read_credentials()
     Mem.instance_id = credentials[0]
     response = evaluate(argv)
     return response
