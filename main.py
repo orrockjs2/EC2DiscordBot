@@ -1,6 +1,8 @@
 import os
 import random
 import start_stop_ec2
+import time
+
 
 import discord
 from dotenv import load_dotenv
@@ -42,13 +44,15 @@ async def on_message(message):
         response = random.choice(shutdown_messages)
         await message.channel.send(response)
         response2 = start_stop_ec2.main('shutdown')
-        await message.channel.send(response2)
+        await message.channel.send(response2)  # TODO: format this json into something useful
 
     if message.content.lower() == 'epiccraft' or message.content.lower() == 'startup':
         response = random.choice(startup_messages)
         await message.channel.send(response)
-        response2 = start_stop_ec2.main('startup')
-        commands = ['echo "hello world"', './minecraftStarter.sh']  # the echo is just for testing really
+        response2 = start_stop_ec2.main('startup')  # TODO: format this json into something useful
+        commands = ['. /home/ubuntu/minecraftStarter.sh']
+        # need to figure out a way to make sure server is up before doing this, for now, sleep(60)
+        time.sleep(60)
         start_stop_ec2.bash_script_executor(commands)
         await message.channel.send(response2)
         await message.channel.send('grabbing the IP...')
@@ -64,15 +68,22 @@ async def on_message(message):
         response = 'restarting Minecraft Server'
         print('bouncing server')
         await message.channel.send(response)
-        commands = ['/home/ubuntu/minecraftStarter.sh']
+        commands = ['. /home/ubuntu/minecraftStarter.sh']
         start_stop_ec2.bash_script_executor(commands)
+
+    if message.content.lower() == 'status':
+        response = start_stop_ec2.current_status()
+        print(response)
+        print()
+        await message.channel.send(response)
 
     if message.content.lower() == 'help':
         response = 'Commands list: \n\n' \
                    '`startup`/`epiccraft` starts the EC2 server and lists the IP \n' \
                    '`shutdown`/`cringecraft` stops the EC2 server\n' \
                    '`addy` lists the current IP\n'\
-                   '`bounceMcServer` will start the Minecraft server on the EC2 box'
+                   '`bounceMcServer` will start the Minecraft server on the EC2 box\n'\
+                   '`status` will tell you if the the EC2 server is up or down'
         await message.channel.send(response)
 
 client.run(TOKEN)

@@ -20,8 +20,6 @@ def read_credentials():
     """
     home_dir = os.path.expanduser('~')
     credentials_file_path = os.path.join(home_dir, "instance_id.txt")
-    #Local Debug line
-    # credentials_file_path = os.getcwd()+'\instance_id.txt'
     try:
         with open(credentials_file_path, 'r') as f:
             credentials = [line.strip() for line in f]
@@ -84,7 +82,6 @@ def stop_ec2():
         ec2.stop_instances(InstanceIds=[Mem.instance_id], DryRun=True)
     except ClientError as e:
         if 'DryRunOperation' not in str(e):
-            return str(e)
             raise
 
     # Dry run succeeded, call stop_instances without dryrun
@@ -108,7 +105,8 @@ def fetch_public_ip():
     print()
     print("Waiting for public IPv4 address...")
     print()
-    time.sleep(5)  # fix this
+    time.sleep(5)  # fix this -- ideally should be done only if server status == running, check the code
+    # in current_status for what properties to look at for this
 
     reservations = ec2_client.describe_instances(InstanceIds=[Mem.instance_id]).get("Reservations")
     for reservation in reservations:
@@ -117,6 +115,18 @@ def fetch_public_ip():
             ip_address = instance.get("PublicIpAddress")
             print()
             return ip_address
+
+
+def current_status():
+    """Shows the current status of the server, usually running or stopped
+    but sometimes it can be in an intermediate state
+    :return: the response from the boto3 current_status command
+    """
+    credentials = read_credentials()
+    Mem.instance_id = credentials[0]
+    ec2_client = boto3.client("ec2", region_name="us-east-2")
+    response = ec2_client.describe_instance_status(InstanceIds=[Mem.instance_id], IncludeAllInstances=True)
+    return response['InstanceStatuses'][0]['InstanceState']['Name']
 
 
 def bash_script_executor(commands):
