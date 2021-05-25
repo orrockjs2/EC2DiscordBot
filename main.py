@@ -12,9 +12,23 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 client = discord.Client()
 
-@client.event
+
+@client.event  # for when bot connects to server for the first time
 async def on_ready():
     print(f'{client.user} has connected to Discord!')
+    for server in client.guilds:
+        for channel in server.text_channels:
+            if channel.permissions_for(server.me).send_messages:
+                await channel.send('CringeCraft Bot is running')
+                response = 'Commands list: \n\n' \
+                   '`startup`/`epiccraft` starts the EC2 server and lists the IP \n' \
+                   '`shutdown`/`cringecraft` stops the EC2 server\n' \
+                   '`addy` lists the current IP\n'\
+                   '`bounceMcServer` will start the Minecraft server on the EC2 box\n'\
+                   '`status` will tell you if the the EC2 server is up or down'
+                await channel.send(response)
+                break
+
 
 @client.event
 async def on_message(message):
@@ -87,3 +101,5 @@ async def on_message(message):
         await message.channel.send(response)
 
 client.run(TOKEN)
+
+
