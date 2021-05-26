@@ -64,14 +64,15 @@ async def on_message(message):
         response = random.choice(startup_messages)
         await message.channel.send(response)
         response2 = start_stop_ec2.main('startup')  # TODO: format this json into something useful
-        commands = ['sh /home/ubuntu/minecraftStarter.sh']
+        #commands = ['sh /home/ubuntu/minecraftStarter.sh'] -- using rc.local for now
         # need to figure out a way to make sure server is up before doing this, for now, sleep(60)
-        time.sleep(60)
-        start_stop_ec2.bash_script_executor(commands)
+        # time.sleep(60)
+        # start_stop_ec2.bash_script_executor(commands)
         # await message.channel.send(response2) # this plain text prints instance id among other things
-        await message.channel.send('grabbing the IP...')
+        await message.channel.send('grabbing the IP... will take a minute')
+        time.sleep(60)
         public_ip = start_stop_ec2.fetch_public_ip()
-        await message.channel.send('Use this IP to login to the server: ' + str(public_ip) + ':25565')
+        await message.channel.send('It may take a minute to get the minecraft server up, wait a bit and then use this IP to login to the server: ' + str(public_ip) + ':25565')
 
     if message.content.lower() == 'addy':
         await message.channel.send('One sec...')
@@ -82,7 +83,7 @@ async def on_message(message):
         response = 'restarting Minecraft Server'
         print('bouncing server')
         await message.channel.send(response)
-        commands = ['sh /home/ubuntu/minecraftStarter.sh']
+        commands = ['sh /opt/scripts/minecraft.sh']
         start_stop_ec2.bash_script_executor(commands)
 
     if message.content.lower() == 'status':
