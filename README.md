@@ -12,8 +12,11 @@ you will also need an instance_id.txt file with your ec2 instance id
 
     1. Add IP output to bot --done
     2. Add startup/shutdown to bot -- done
-    3. Write minecraft startup.sh script 
-    4. See if the discord bot can call the startup.sh script or if it can be automated on server startup -- calling script done
-    5. figure out how to persist data between stop and start (the script, MC world, etc)
+    3. Write minecraft startup.sh script -- done
+    4. See if the discord bot can call the startup.sh script or if it can be automated on server startup -- calling script done --automated on startup
+    5. figure out how to persist data between stop and start (the script, MC world, etc) -- going to do this with auto backups to my WSL2 machine --done
     6. upgrade server to 8Gib
-    7. Make sure world and stuff gets persisted
+    7. Make sure world and stuff gets persisted -- i think this is good minecraft default saves every 5 mins
+    8. change memory params on minecraft.sh
+    9. mod server
+    10. Run backup on every startup
