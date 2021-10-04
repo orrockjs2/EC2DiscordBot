@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 
 import os
+from datetime import datetime
 import time
 import boto3.ec2
+import boto3
 from botocore.exceptions import ClientError
+
 
 VERSION = '1.5.0'
 ec2 = boto3.client('ec2', region_name='us-east-2')
+
+
+# Use AWS Pricing API at US-East-1
+cost_client = boto3.client('ce', region_name='us-east-1')
 
 
 class Mem:
@@ -129,6 +136,27 @@ def current_status():
     return response['InstanceStatuses'][0]['InstanceState']['Name']
 
 
+# Get current AWS price for an on-demand instance
+def get_price():
+    today = datetime.today()
+    start_date = str(today.year) + str('-') + str(today.month).zfill(2) + str('-01')
+    end_date = str(today.year) + str('-') + str(today.month).zfill(2) + str('-') + str(today.day+1).zfill(2)
+    print(start_date)
+    print(end_date)
+    response = cost_client.get_cost_and_usage(
+        TimePeriod={
+            'Start': start_date,
+            'End': end_date
+        },
+        Granularity='MONTHLY',
+        Metrics=[
+            'AmortizedCost',
+        ]
+    )
+    response = (response['ResultsByTime'][0]['Total']['AmortizedCost']['Amount'])
+    return response + ' USD'
+
+
 def bash_script_executor(commands):
     """Runs commands on remote linux instances
     ideally, so I don't have to add more to this, just have it call a shell script thats on the EC2
@@ -153,3 +181,12 @@ def main(argv):
     Mem.instance_id = credentials[0]
     response = evaluate(argv)
     return response
+
+
+
+
+
+
+
+
+

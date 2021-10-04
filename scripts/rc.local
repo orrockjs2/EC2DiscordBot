@@ -1,4 +1,4 @@
 #!/bin/sh
-/opt/script/mcbackup.sh  # run the backup script on every startup
+/opt/scripts/mcbackup.sh  # run the backup script on every startup
 screen -dm -S minecraft /opt/scripts/minecraft.sh
 exit 0
