@@ -6,9 +6,3 @@ You will need a .env file with your bot's Token, this is found on the Bot sectio
 Additionally, an EC2 instance with appropriate perms, read about security for an EC2 and connecting to one here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstances.html
 
 you will also need an instance_id.txt file with your ec2 instance id
-
-
-### TODO:
-
-    1. add cost analyzer to bot
-    2. add howto for launching
